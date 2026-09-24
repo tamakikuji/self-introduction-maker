@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>【ゲームキャラ風】自己紹介生成メーカー</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef2fb; --bg2:#dfe7f8; --surface:#ffffff; --ink:#14224a; --muted:#56668f;
+  --line:#c5d0ea; --accent:#2b4fc4; --accent-ink:#ffffff; --star:#b8862b; --chip:#f4f7fe;
+  --shadow:0 1px 0 rgba(20,34,74,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#090f2b; --bg2:#101a45; --surface:#121b45; --ink:#eaf0ff; --muted:#9dafdc;
+    --line:#2b3b78; --accent:#8fb0ff; --accent-ink:#0a1230; --star:#e8c877; --chip:#18235a;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#090f2b; --bg2:#101a45; --surface:#121b45; --ink:#eaf0ff; --muted:#9dafdc;
+  --line:#2b3b78; --accent:#8fb0ff; --accent-ink:#0a1230; --star:#e8c877; --chip:#18235a;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; min-height:100vh; color:var(--ink); background-color:var(--bg);
+  background-image:
+    radial-gradient(1.2px 1.2px at 12% 18%, var(--star) 50%, transparent 52%),
+    radial-gradient(1px 1px at 82% 9%, var(--star) 50%, transparent 52%),
+    radial-gradient(1.4px 1.4px at 66% 34%, var(--star) 50%, transparent 52%),
+    radial-gradient(1px 1px at 30% 62%, var(--star) 50%, transparent 52%),
+    radial-gradient(1.2px 1.2px at 91% 71%, var(--star) 50%, transparent 52%),
+    linear-gradient(180deg, var(--bg2) 0, var(--bg) 320px);
+  background-repeat:no-repeat;
+  font-family:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+  line-height:1.75; font-size:16px;
+}
+.wrap{max-width:560px; margin:0 auto; padding:20px 18px 64px}
+header{display:flex; align-items:center; gap:10px; margin-bottom:6px}
+header .moon{font-size:26px; color:var(--star); line-height:1}
+header h1{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif; font-weight:700; font-size:19px; margin:0; letter-spacing:.06em}
+.progress{display:flex; gap:5px; margin:14px 0 22px; align-items:center}
+.progress i{font-style:normal; font-size:14px; color:var(--line); transition:color .25s, transform .25s}
+.progress i.on{color:var(--star)}
+.progress i.now{transform:scale(1.35)}
+.progress span{margin-left:auto; font-size:13px; color:var(--muted)}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:22px 18px; box-shadow:var(--shadow)}
+h2{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif; font-size:24px; line-height:1.5; margin:0 0 4px; letter-spacing:.04em}
+h2.nosub{margin-bottom:18px}
+.sub{margin:0 0 18px; color:var(--muted); font-size:14px}
+label.f{display:block; font-size:14px; color:var(--muted); margin:14px 0 4px}
+input[type=text], textarea.wide{
+  width:100%; font:inherit; font-size:16px; color:var(--ink); background:var(--chip);
+  border:1px solid var(--line); border-radius:10px; padding:12px 14px;
+}
+input[type=text]:focus, textarea:focus{outline:2px solid var(--accent); outline-offset:1px}
+.group-title{font-weight:700; font-size:15px; margin:18px 0 8px}
+.group-title:first-of-type{margin-top:0}
+.group-title.lg{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif; font-size:22px; letter-spacing:.06em; margin:22px 0 10px}
+.group-title.lg:first-of-type{margin-top:0}
+.chips{display:flex; flex-wrap:wrap; gap:8px}
+.chip{
+  font:inherit; font-size:15px; color:var(--ink); background:var(--chip); border:1px solid var(--line);
+  border-radius:999px; padding:9px 15px; cursor:pointer; min-height:44px; line-height:1.3; text-align:left;
+  transition:background .15s, color .15s, border-color .15s;
+}
+.chip[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:700}
+.chip:focus-visible, .btn:focus-visible, .star:focus-visible, .tab:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.add{display:flex; gap:8px; margin:0 0 14px}
+.add input{flex:1}
+.btn{
+  font:inherit; font-size:16px; font-weight:700; border-radius:999px; border:1px solid var(--accent);
+  background:var(--accent); color:var(--accent-ink); padding:12px 24px; cursor:pointer; min-height:48px;
+}
+.btn.ghost{background:transparent; color:var(--accent)}
+.btn.small{padding:8px 16px; min-height:44px; font-size:14px}
+.nav{display:flex; gap:10px; justify-content:space-between; margin-top:20px}
+.nav .btn.next{margin-left:auto}
+.nav.top{margin:0 0 14px}
+.hint{font-size:13px; color:var(--muted); margin-top:10px}
+.stats{display:grid; gap:0}
+.stat{padding:10px 0; border-bottom:1px solid var(--line)}
+.stat:last-child{border-bottom:0}
+.stat input[type=text]{padding:9px 12px; font-size:15px}
+.stars{display:flex; margin-top:2px}
+.star{background:none; border:0; padding:4px 2px; font-size:28px; line-height:1; color:var(--line); cursor:pointer; min-width:40px; min-height:44px}
+.star.on{color:var(--star)}
+.stat .r{display:flex; gap:8px; align-items:center}
+.stat .r input{flex:1}
+.btn:disabled{opacity:.45; cursor:default}
+.lastbox{margin-top:14px; padding:14px; border:1px dashed var(--star); border-radius:12px}
+.lastbox .ttl{font-weight:700; font-size:15px; margin-bottom:6px}
+textarea.wide{min-height:96px; resize:vertical; line-height:1.6}
+.tabs{display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap}
+.tab{font:inherit; font-size:14px; padding:9px 14px; border-radius:999px; border:1px solid var(--line); background:var(--chip); color:var(--ink); cursor:pointer; min-height:44px}
+.tab[aria-selected="true"]{background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:700}
+textarea.doc{
+  width:100%; font:inherit; font-size:14px; line-height:1.7; color:var(--ink); background:var(--chip);
+  border:1px solid var(--line); border-radius:10px; padding:14px; resize:vertical; min-height:340px;
+}
+textarea.doc[readonly]{cursor:default}
+.row{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; align-items:center}
+.seg{display:flex; gap:6px; margin:0 0 10px; align-items:center; flex-wrap:wrap; font-size:14px; color:var(--muted)}
+.tip{margin-top:16px; padding:12px 14px; border-left:3px solid var(--star); background:var(--chip); border-radius:0 10px 10px 0; font-size:14px}
+.toast{position:fixed; left:50%; bottom:28px; transform:translateX(-50%); background:var(--ink); color:var(--bg); padding:10px 18px; border-radius:999px; font-size:14px; opacity:0; pointer-events:none; transition:opacity .2s; z-index:9}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion: reduce){ *{transition:none !important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><span class="moon" aria-hidden="true">☾</span><h1>【ゲームキャラ風】自己紹介生成メーカー</h1></header>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+  <main id="main"></main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- helpers ---------- */
+function h(tag, props){
+  var e = document.createElement(tag);
+  var p = props || {};
+  Object.keys(p).forEach(function(k){
+    var v = p[k];
+    if(k === "class") e.className = v;
+    else if(k.indexOf("on") === 0) e.addEventListener(k.slice(2), v);
+    else if(k === "text") e.textContent = v;
+    else e.setAttribute(k, v);
+  });
+  for(var i = 2; i < arguments.length; i++){
+    var kids = [].concat(arguments[i]);
+    kids.forEach(function(c){
+      if(c == null || c === false) return;
+      e.append(c.nodeType ? c : document.createTextNode(c));
+    });
+  }
+  return e;
+}
+var toastTimer;
+function toast(msg){
+  var t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 1800);
+}
+function copyText(text){
+  function fallback(){
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); toast("コピーしました"); }
+    catch(e){ toast("長押しでコピーしてください"); }
+    document.body.removeChild(ta);
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){ toast("コピーしました"); }, fallback);
+  } else fallback();
+}
+
+/* ---------- kana -> romaji ---------- */
+var ROM = {};
+"あa いi うu えe おo かka きki くku けke こko さsa しshi すsu せse そso たta ちchi つtsu てte とto なna にni ぬnu ねne のno はha ひhi ふfu へhe ほho まma みmi むmu めme もmo やya ゆyu よyo らra りri るru れre ろro わwa をo んn がga ぎgi ぐgu げge ごgo ざza じji ずzu ぜze ぞzo だda ぢji づzu でde どdo ばba びbi ぶbu べbe ぼbo ぱpa ぴpi ぷpu ぺpe ぽpo ゔvu ぁa ぃi ぅu ぇe ぉo".split(" ").forEach(function(t){ ROM[t.charAt(0)] = t.slice(1); });
+var SMALL = {"ゃ":"a","ゅ":"u","ょ":"o"};
+var KANA_ONLY = /^[ぁ-ゖー゛゜ァ-ヺヽヾ・]+$/;
+var SAFE_TEXT = /^[ぁ-ゖー゛゜ァ-ヺヽヾ・A-Za-z0-9\s\u3000]+$/;
+function kanaToRomaji(src){
+  var s = String(src).replace(/[ァ-ヶ]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0x60); });
+  var out = "", sokuon = false;
+  for(var i = 0; i < s.length; i++){
+    var c = s.charAt(i), r = "";
+    if(c === "\u3000" || /\s/.test(c)){ out += " "; sokuon = false; continue; }
+    if(/[A-Za-z0-9]/.test(c)){ out += c; sokuon = false; continue; }
+    if(c === "っ"){ sokuon = true; continue; }
+    if(c === "ー"){ var m = out.match(/[aiueo]$/i); if(m) out += m[0]; continue; }
+    if(!ROM[c]) continue;
+    r = ROM[c];
+    var nx = s.charAt(i + 1);
+    if(SMALL[nx] && /i$/.test(r)){
+      r = (r === "shi" || r === "chi" || r === "ji") ? r.slice(0, -1) + SMALL[nx] : r.slice(0, -1) + "y" + SMALL[nx];
+      i++;
+    }
+    if(sokuon){
+      r = (r.indexOf("ch") === 0 ? "t" : r.charAt(0)) + r;
+      sokuon = false;
+    }
+    out += r;
+  }
+  return out.replace(/\s+/g, " ").toUpperCase();
+}
+function romajiFromSegs(){
+  var kana = "";
+  for(var i = 0; i < S.nameSeg.length; i++){
+    var k = S.nameSeg[i].k;
+    if(k === null || k === "") return null;
+    kana += k;
+  }
+  var r = kanaToRomaji(kana).replace(/^ +/, "");
+  var trailing = / $/.test(r);
+  var words = r.trim().split(" ").filter(Boolean);
+  /* 日本語の名前は、英語の並び（名 姓）に入れ替える */
+  if(words.length >= 2 && /[^\x00-\x7F]/.test(S.name)) words.reverse();
+  var out = words.join(" ");
+  return (trailing && out) ? out + " " : out;
+}
+
+/* ---------- content ---------- */
+var DEFAULT_CLOSING = "ーこのゲームの主人公は、自分。ー";
+var OPT = {
+  attrs:["自由奔放","マイペース","平和主義","安定志向","のほほん","深掘り型","止まらない好奇心","ひらめき型","センス爆発","独創的","夢想家","現実的","やわらか思考","冷静","慎重派","計画的","インドア","アウトドア","冒険心","行動的","挑戦的","とことんこだわる","熱中型","仕事人","オタク気質","マニア","ミーハー","遊び心","ユーモア","人情派","感受性豊か","陽キャ","人見知り","ソロプレイ","お豆腐メンタル","猫舌","カナヅチ","食欲旺盛","運動音痴","アナログ人間"],
+  ability:["ひらめき発動","聞き上手","空気変換","段取り構築","粘り強さ","気配察知","仲間召喚","情報収集","ばつぐんのセンス","言葉の魔法","記憶力強化","観察眼","アイデア無限","どこでも睡眠","違和感センサー","強運"],
+  move:["気合い突破","ギリギリ本気モード","笑って回避","質問攻撃","整頓リセット","共感ヒール","即行動","超集中モード","根回し発動","ポジティブ変換","まず調べる","本音ストレート","睡眠回復","アイデア連射","差し入れ応援","一人作戦会議"],
+  hidden:["負けず嫌い","先読み過剰","完璧主義","ぬくもり欲","糖分への忠誠心","夜間覚醒力","方向音痴","距離感バグ","再起動性能","涙腺ゆるめ","記憶のランダム性","吟味力","推しへの忠誠心","土壇場性能","猫耐性","ソロ充電可能"],
+  likes:["読書","音楽","映画","旅行","料理","ゲーム","散歩","カフェ","絵・イラスト","文章を書く","動物","占い","AI創作","推し活","運動","お酒",
+         "写真","ドライブ","ショッピング","ファッション","園芸・植物","カラオケ","ボードゲーム","お菓子作り","温泉","美術館","神社・お寺","DIY・手芸","アニメ・漫画","ダンス","ヨガ・瞑想","ドラマ"],
+  persona:["自分で考えて、自分で確かめて、自分で決めたい","みんなで楽しく進めたい","静かに、でも着実に続けたい","面白そうなら、まずやってみたい","納得してから、丁寧に進めたい",
+           "まず自分の目で確かめたい","好きなことは、とことんやりたい","無理せず、マイペースでいきたい","人との縁を大切にしたい","やるなら、ちゃんと形にしたい"],
+  goal:["大切な人と笑って過ごせる毎日","好きなことで食べていける暮らし","穏やかで、自分らしくいられる日々","誰かの役に立ちながら成長し続ける人生",
+        "自分の作品を世に出せる人生","毎日を、ちゃんと味わえる日々","行きたい場所へ自由に行ける暮らし","好きな人たちに囲まれた人生","昨日の自分を超え続ける日々"],
+  stage:["宇宙","海","空の上","森","山","雪原","砂漠","無人島","洞窟","王国","研究施設","美術館","遊園地","下町","夜の繁華街","学校","田舎","港町","近未来都市","サイバー都市","廃墟","異世界"],
+  gender:["♂","♀","その他"],
+  mood:["透明感","キラキラ","ふわふわ","しっとり","幻想的","ミステリアス","リラックス","ナチュラル","クール","ワイルド","ダイナミック","スポーティー","ダンディ","セクシー","プリティ","ロマンティック","華やか","ゴージャス","エレガント","フレッシュ","シンプル","カジュアル","ポップ","レトロ","クラシカル","和風","韓国風","フレンチ","アメリカン","エキゾチック","カントリー","ケルティック"],
+  closing:[DEFAULT_CLOSING,"ーまだ、物語は続いている。ー","ーセーブはない。だから、ずっと本番。ー","ー今日のクエストは、楽しむこと。ー","ー攻略法は、自分で決める。ー","ー難易度は、自分で選ぶ。ー","行こう。まだ見たことのない世界へ。","面白そうじゃん。やってみようよ。","大丈夫。なんとかなるって。","私は私の好きなように生きるよ。","予定通りじゃなくても、いいじゃん。","急がなくていいよ。自分のペースで行こう。","自由にやったほうが、楽しいじゃん。","面白くなってきたじゃん。","納得いかないなら、作り直せばいい。","まだまだ、これからでしょ。","知らないなら、確かめればいい。"],
+  equip:["手帳とペン","万年筆","お気に入りの帽子","お気に入りの服","眼鏡","腕時計","アクセサリー","愛用のカメラ","イヤホン","スマホ","ノートPC","使い込んだ本","大きめのバッグ","香水・アロマ","お気に入りの靴","愛用の楽器","画材セット","自転車","お守り","観葉植物"],
+  heal:["スイーツ","アイス","肉まん","ラーメン","うな重","寿司","がっつり肉","バナナ","ビール","温かいお茶","コーヒー","ホットミルク","栄養ドリンク","プロテイン","入浴剤","アロマ","アイマスク","湯たんぽ","ふわふわブランケット","抱き枕","ぬいぐるみ","マッサージ器具","美顔器","目薬","湿布","リップクリーム","ゲーム機","推しの写真","宝くじ"],
+  save:["自宅","マイルーム","キッチン","トイレ","庭","ベッド","布団","こたつ","お風呂","車の中","誰もいない場所","コンビニ","スーパー","ファミレス","カフェ","商店街","繁華街","散歩道","駅","屋上","温泉","旅館","ホテル","海","山","公園","図書館","本屋","ゲームセンター","カラオケ","ライブ会場","お祭り","飲み会","好きな人のそば","遊園地","展望台","空港","初めて訪れる場所","帰り道","旅先"]
+};
+var LOOK_SECTIONS = [
+  ["服装・スタイルから選ぶ", ["現代のカジュアル服","スーツ","制服","ドレス","和装","軍服","部屋着"]],
+  ["ゲーム・ファンタジー系から選ぶ", ["魔法使い","冒険者","騎士","盗賊","僧侶","錬金術師","妖精","王","姫","貴族"]],
+  ["職業・キャラクター性から選ぶ", ["研究者","探偵","芸術家","音楽家","カフェ店員","パティシエ","医師","教師","パイロット","商人","発明家","旅人"]],
+  ["変わり種から選ぶ", ["動物","ぬいぐるみ","人形・ドール","ロボット","アンドロイド","妖怪","宇宙人","天使","悪魔","モンスター"]]
+];
+var GENDER_LIST = ["♂","♀","その他"];
+var COLOR_TONE_SECTIONS = [
+  ["色", ["赤","オレンジ","黄色","緑","水色","青","ターコイズ","紫","ピンク","茶色","白","黒","グレー","金","銀"]],
+  ["色のトーン", ["パステル","ビビッド","ダーク","くすみ","淡色","ネオン","アースカラー","メタリック"], 1]
+];
+var VIBE_SECTIONS = [
+  ["色", ["赤","オレンジ","黄色","緑","水色","青","ターコイズ","紫","ピンク","茶色","白","黒","グレー","金","銀"]],
+  ["色のトーン", ["パステル","ビビッド","ダーク","くすみ","淡色","ネオン","アースカラー","メタリック"]],
+  ["雰囲気", ["透明感","キラキラ","ふわふわ","しっとり","幻想的","ミステリアス","リラックス","ナチュラル","クール","ワイルド","ダイナミック","スポーティー","ダンディ","セクシー","プリティ","ロマンティック","華やか","ゴージャス","エレガント","フレッシュ","シンプル","カジュアル","ポップ","レトロ","クラシカル","和風","韓国風","フレンチ","アメリカン","エキゾチック","カントリー","ケルティック"]]
+];
+var MOVE_TEXT = {
+  "気合い突破":"理屈より先に、腹が決まる。\n決まったあとの推進力は、本人も驚くレベル。",
+  "ギリギリ本気モード":"ギリギリまで寝かせて、ある瞬間に一気に仕上げる。\n締め切りがいちばんの味方。",
+  "笑って回避":"大ごとになりそうな場面を、ひと笑いで軽くする。\n空気を守る、地味にすごい技。",
+  "質問攻撃":"「それって、なんで？」で核心を掘り当てる。\n聞かれた側が、自分の答えに気づく。",
+  "整頓リセット":"散らかった情報も部屋も、ほどよく整えて見通しをよくする。\n整うと、頭も軽くなる。",
+  "共感ヒール":"相手の気持ちの温度を、そっと言葉にする。\n話した側が、ふっと楽になる。",
+  "即行動":"思いついたら、まず動く。\n考えるのは、動きながら。",
+  "超集中モード":"スイッチが入ると、周りの音が消える。\n気づけば数時間、成果だけが残っている。",
+  "根回し発動":"表に出る前に、必要な人へそっと話を通しておく。\n本番は、だいたい静かに成功する。",
+  "ポジティブ変換":"失敗も「ネタができた」に変える。\n落ち込みの回復が、やたら早い。",
+  "まず調べる":"気になったら、まず調べる。気づけば資料の山。\nだいたいその山の中に答えがある。",
+  "本音ストレート":"遠回しにせず、思ったことをそのまま言う。\n空気が止まっても、あとで本音が動き出す。",
+  "睡眠回復":"詰まったら、まず寝る。\n起きたころには、頭の中が勝手に整っている。",
+  "アイデア連射":"1つ聞けば、5つ返ってくる。\nその中に、たまに本命が混ざっている。",
+  "差し入れ応援":"絶妙なタイミングで、そっと甘いものを差し出す。\nそれだけで、場が丸くなる。",
+  "一人作戦会議":"頭の中で、もうひとりの自分と作戦会議。\n終わるころには、進む道が決まっている。"
+};
+var HIDDEN_TEXT = {
+  "負けず嫌い":{t:"「そんなもんじゃねえ」",b:"「そこまでが限界じゃない？」\n↓\n闘志、発動。\n自己評価＋∞\n反骨精神＋∞\n\nただし、身体のHPが追いつくとは限らない。"},
+  "先読み過剰":{t:"「念のため、もう一回」",b:"確認したのに、確認したかを確認する。\n準備の質が、なぜか異様に高い。\n\nただし、心のMPは静かに減っていく。"},
+  "完璧主義":{t:"「まだ7割」",b:"人には十分に見えても、本人の合格ラインは別にある。\nクオリティ＋∞\n\nただし、提出のタイミングを逃すことがある。"},
+  "ぬくもり欲":{t:"「ちょっと連絡してみよ」",b:"ひとりが好きなのに、ひとりが長いと寂しくなる。\n\n返信が来ると、HPが全回復する。"},
+  "糖分への忠誠心":{t:"「糖分、補給」",b:"疲れたら、まず甘いもの。\n回復アイテムとしての性能は、かなり高い。\n\nただし、財布へのダメージが地味に入る。"},
+  "夜間覚醒力":{t:"「夜になると本気出す」",b:"日が落ちるほど、集中力とひらめきが上がる。\n\nただし、翌朝の自分にバトンを渡すのは苦手。"},
+  "方向音痴":{t:"「たぶんこっち」",b:"地図を見ても、なぜか逆に進む。\nそのぶん、思わぬ発見に出会う確率が高い。"},
+  "距離感バグ":{t:"「最初の5分だけ静か」",b:"慣れるまでは観察モード。\n打ち解けたあとの会話量は、別人レベル。"},
+  "再起動性能":{t:"「あと5分」",b:"午前のHPは、常に低め。\nただし、昼を過ぎると急に頼もしくなる。"},
+  "涙腺ゆるめ":{t:"「これは、ずるい」",b:"良い話には、だいたい弱い。\n感受性＋∞\n\nただし、ハンカチの所持が必須。"},
+  "猫耐性":{t:"「かわいいは正義」",b:"猫の前では、判断力が急降下する。\n見かけた瞬間、行動不能になる。"},
+  "ソロ充電可能":{t:"「充電中です」",b:"ひとりの時間で、MPが完全回復する。\nこの時間が確保できないと、じわじわ不調になる。"}
+};
+var STAT_MAP = {
+  "自由奔放":"自由度",
+  "マイペース":"マイペース度",
+  "平和主義":"穏やかさ",
+  "安定志向":"安定感",
+  "のほほん":"呑気さ",
+  "深掘り型":"探究心",
+  "止まらない好奇心":"好奇心",
+  "ひらめき型":"直感力",
+  "センス爆発":"審美眼",
+  "独創的":"独創性",
+  "夢想家":"空想力",
+  "現実的":"現実感覚",
+  "やわらか思考":"柔軟性",
+  "冷静":"冷静さ",
+  "慎重派":"慎重さ",
+  "計画的":"段取り力",
+  "インドア":"インドア力",
+  "アウトドア":"アウトドア力",
+  "冒険心":"冒険心",
+  "行動的":"行動力",
+  "挑戦的":"挑戦力",
+  "とことんこだわる":"こだわり",
+  "熱中型":"情熱度",
+  "仕事人":"仕事への熱量",
+  "オタク気質":"オタク度",
+  "マニア":"マニア度",
+  "ミーハー":"ミーハー度",
+  "遊び心":"遊び心",
+  "ユーモア":"ユーモア",
+  "人情派":"思いやり",
+  "感受性豊か":"感受性",
+  "陽キャ":"社交性",
+  "人見知り":"人見知り度",
+  "ソロプレイ":"自立力",
+  "お豆腐メンタル":"お豆腐メンタル",
+  "猫舌":"猫舌度",
+  "カナヅチ":"泳力",
+  "食欲旺盛":"食欲",
+  "運動音痴":"運動神経",
+  "アナログ人間":"アナログ人間",
+  "読書":"知識欲",
+  "音楽":"音感",
+  "映画":"感性の豊かさ",
+  "旅行":"冒険心",
+  "料理":"料理センス",
+  "ゲーム":"廃人度",
+  "散歩":"ぶらぶら度",
+  "カフェ":"まったり度",
+  "絵・イラスト":"描写力",
+  "文章を書く":"文才",
+  "動物":"面倒見のよさ",
+  "占い":"洞察力",
+  "AI創作":"言語化力",
+  "推し活":"フッ軽度",
+  "運動":"体力",
+  "お酒":"酒豪度",
+  "写真":"好奇心",
+  "ドライブ":"安全運転度",
+  "ショッピング":"熟考度",
+  "ファッション":"コーデ力",
+  "園芸・植物":"コツコツ力",
+  "カラオケ":"歌唱力",
+  "ボードゲーム":"参謀の秀才",
+  "お菓子作り":"パティシエ度",
+  "温泉":"回復力",
+  "美術館":"審美眼",
+  "神社・お寺":"精神性",
+  "DIY・手芸":"職人気質",
+  "アニメ・漫画":"妄想力",
+  "ダンス":"リズム感",
+  "ヨガ・瞑想":"マインドフルネス",
+  "ドラマ":"共感力"
+};
+var LAST_MAP = {
+  "負けず嫌い":{name:"勝負根性", text:"★★★★★★★"},
+  "先読み過剰":{name:"先読み力", text:"★★★★★★★★★"},
+  "完璧主義":{name:"完成度への執念", text:"★★★★★★★"},
+  "ぬくもり欲":{name:"甘えん坊度", text:"★★★★★★★★"},
+  "糖分への忠誠心":{name:"糖分消費量", text:"★★★★★★★★★"},
+  "夜間覚醒力":{name:"深夜テンション", text:"★★★★★★★"},
+  "方向音痴":{name:"方向感覚", text:"測定不能"},
+  "距離感バグ":{name:"人見知り度", text:"★★★★★★★"},
+  "再起動性能":{name:"二度寝の才能", text:"∞"},
+  "涙腺ゆるめ":{name:"涙もろさ", text:"★★★★★★★★"},
+  "記憶のランダム性":{name:"忘れ物の才能", text:"測定不能"},
+  "吟味力":{name:"迷い続ける力", text:"∞"},
+  "推しへの忠誠心":{name:"推しへの愛", text:"∞"},
+  "土壇場性能":{name:"締め切り耐性", text:"★★★★★★★"},
+  "猫耐性":{name:"猫への弱さ", text:"∞"},
+  "ソロ充電可能":{name:"ひとり時間の必要度", text:"★★★★★★★"}
+};
+function lastFor(hid){ return LAST_MAP[hid] || {name:"底力", text:"★★★★★★★"}; }
+function isOver(t){ return countStars(t) > 5 || /∞|測定不能|無限|限界/.test(String(t)); }
+var STAT_FILL = ["好奇心","行動力","柔軟性","頑固さ","予定通りに生きる能力","想像力","自分で考える力"];
+
+/* ---------- state ---------- */
+function freshState(){
+  return {
+    name:"", yomi:"", attrs:[], ability:[], move:[], hidden:[], persona:[], goal:[],
+    likes:[], stage:[], colortone:[], mood:[], gender:[], look:[], equip:[], heal:[], save:[], closing:"",
+    statRows:[], extraRows:[], last:{name:"", text:"", edited:false}, sig:"",
+    nameSeg:[], pendingKana:"", yomiManual:false, draft:{},
+    extra:{}
+  };
+}
+var S = freshState();
+
+function val(arr, fb){ return arr.length ? arr[0] : fb; }
+function statName(k){ return STAT_MAP[k] || k; }
+function starStr(n){ return "★".repeat(n) + "☆".repeat(Math.max(0, 5 - n)); }
+function countStars(t){ return (String(t).match(/★/g) || []).length; }
+
+function buildCands(kept, lastName){
+  var used = [].concat(S.attrs, S.ability, S.move, S.hidden, S.likes, S.equip, S.heal, S.save, [lastName]);
+  function conflict(n){
+    return used.some(function(u){
+      if(!u) return false;
+      if(u === n) return true;
+      return u.length >= 3 && n.length >= 3 && (n.indexOf(u) >= 0 || u.indexOf(n) >= 0);
+    }) || kept.indexOf(n) >= 0;
+  }
+  var cands = [];
+  function push(n){ if(n && cands.indexOf(n) < 0 && !conflict(n)) cands.push(n); }
+  S.attrs.forEach(function(a){ push(statName(a)); });
+  S.likes.forEach(function(a){ push(statName(a)); });
+  STAT_FILL.forEach(function(f){ push(f); });
+  return cands;
+}
+/* 追加ボタンを押したときの、自動の項目名（すでにある項目とは重ならない） */
+function suggestStatName(){
+  ensureStats();
+  var kept = [];
+  S.statRows.forEach(function(r){ kept.push(r.name); });
+  S.extraRows.forEach(function(r){ kept.push(r.name); });
+  return buildCands(kept, S.last.name)[0] || "";
+}
+function ensureStats(){
+  var sig = JSON.stringify([S.attrs, S.ability, S.move, S.hidden, S.likes]);
+  if(sig === S.sig && S.statRows.length) return;
+  S.sig = sig;
+  var hid = val(S.hidden, "かなり負けず嫌い");
+  var lastInfo = lastFor(hid);
+  var lastName = lastInfo.name;
+  /* 手入力した項目は残し、まだ触っていない項目だけ作り直す */
+  var old = S.statRows;
+  var kept = [];
+  old.forEach(function(r){ if(r.edited) kept.push(r.name); });
+  S.extraRows.forEach(function(r){ if(r.edited) kept.push(r.name); });
+  if(S.last.edited) kept.push(S.last.name);
+  var cands = buildCands(kept, lastName), ci = 0;
+  var rows = [];
+  for(var i = 0; i < 2; i++){
+    if(old[i] && old[i].edited){ rows.push(old[i]); }
+    else { rows.push({name: cands[ci++] || "", n: 3, edited: false}); }
+  }
+  S.statRows = rows;
+  S.extraRows.forEach(function(r){ if(!r.edited) r.name = cands[ci++] || ""; });
+  if(!S.last.edited){
+    S.last = {name:lastName, text:lastInfo.text, edited:false};
+  }
+}
+
+/* ---------- widgets ---------- */
+function chipGroup(key, max, onPick, noInput, liveText){
+  var wrap = h("div");
+  var chipsEl = h("div", {class:"chips"});
+  var input = h("input", {type:"text", class:"chipin", placeholder:"自由に書く", "aria-label":"自由に書く"});
+  var addBtn = h("button", {class:"btn ghost small", type:"button", text:"追加"});
+  input.value = liveText ? (S[key][0] || "") : (S.draft[key] || "");
+  var ex = S.extra;
+  if(!ex[key]) ex[key] = [];
+  function options(){ return OPT[key].concat(ex[key]); }
+  function pick(opt, isPreset){
+    var cur = S[key], i = cur.indexOf(opt);
+    if(i >= 0){ cur.splice(i,1); }
+    else if(max === 1){ S[key] = [opt]; }
+    else if(cur.length < max){ cur.push(opt); }
+    else { toast("最大" + max + "個までです"); return; }
+    draw();
+    if(onPick && max === 1 && isPreset && S[key].length) onPick();
+  }
+  function draw(){
+    chipsEl.textContent = "";
+    var presetCount = OPT[key].length;
+    options().forEach(function(o, idx){
+      var on = S[key].indexOf(o) >= 0;
+      chipsEl.append(h("button", {class:"chip", type:"button", "aria-pressed": on ? "true" : "false", text:o,
+        onclick:function(){ pick(o, idx < presetCount); if(liveText) input.value = S[key][0] || ""; }}));
+    });
+  }
+  if(liveText){
+    input.addEventListener("input", function(){
+      var v = input.value.trim();
+      S[key] = v ? [v] : [];
+    });
+  } else {
+    input.addEventListener("input", function(){ S.draft[key] = input.value; });
+    function add(){
+      var v = input.value.trim();
+      if(!v) return;
+      if(options().indexOf(v) < 0) ex[key].push(v);
+      input.value = ""; S.draft[key] = "";
+      if(S[key].indexOf(v) < 0){
+        if(max === 1) S[key] = [v];
+        else if(S[key].length < max) S[key].push(v);
+        else toast("最大" + max + "個までです");
+      }
+      draw();
+    }
+    addBtn.addEventListener("click", add);
+    input.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); add(); } });
+  }
+  draw();
+  if(!noInput){
+    wrap.append(liveText ? h("div", {class:"add"}, input) : h("div", {class:"add"}, input, addBtn));
+  }
+  wrap.append(chipsEl);
+  return wrap;
+}
+function sectionedChipGroup(key, sections, defaultMax){
+  var wrap = h("div");
+  var input = h("input", {type:"text", class:"chipin", placeholder:"自由に書く", "aria-label":"自由に書く"});
+  var addBtn = h("button", {class:"btn ghost small", type:"button", text:"追加"});
+  input.value = S.draft[key] || "";
+  input.addEventListener("input", function(){ S.draft[key] = input.value; });
+  var ex = S.extra;
+  if(!ex[key]) ex[key] = [];
+  var allPreset = [];
+  sections.forEach(function(sec){ allPreset = allPreset.concat(sec[1]); });
+  var body = h("div");
+  function sectionOf(opt){
+    for(var i = 0; i < sections.length; i++){ if(sections[i][1].indexOf(opt) >= 0) return sections[i]; }
+    return null;
+  }
+  function pick(opt){
+    var cur = S[key], i = cur.indexOf(opt);
+    if(i >= 0){ cur.splice(i,1); draw(); return; }
+    var sec = sectionOf(opt);
+    var max = (sec && sec[2] !== undefined) ? sec[2] : defaultMax;
+    if(max === 1){
+      if(sec){ var items = sec[1]; S[key] = cur.filter(function(v){ return items.indexOf(v) < 0; }); }
+      S[key].push(opt);
+    } else {
+      var countInSec = sec ? cur.filter(function(v){ return sec[1].indexOf(v) >= 0; }).length : cur.length;
+      if(countInSec < max){ cur.push(opt); } else { toast("最大" + max + "個までです"); return; }
+    }
+    draw();
+  }
+  function chipsFor(items){
+    var el = h("div", {class:"chips"});
+    items.forEach(function(o){
+      var on = S[key].indexOf(o) >= 0;
+      el.append(h("button", {class:"chip", type:"button", "aria-pressed": on ? "true" : "false", text:o,
+        onclick:function(){ pick(o); }}));
+    });
+    return el;
+  }
+  function draw(){
+    body.textContent = "";
+    sections.forEach(function(sec){
+      body.append(h("div", {class:"group-title"}, sec[0]), chipsFor(sec[1]));
+    });
+    if(ex[key].length) body.append(chipsFor(ex[key]));
+  }
+  function add(){
+    var v = input.value.trim();
+    if(!v) return;
+    if(allPreset.indexOf(v) < 0 && ex[key].indexOf(v) < 0) ex[key].push(v);
+    input.value = ""; S.draft[key] = "";
+    if(S[key].indexOf(v) < 0){
+      if(defaultMax === 1) S[key] = [v];
+      else if(S[key].length < defaultMax) S[key].push(v);
+      else toast("最大" + defaultMax + "個までです");
+    }
+    draw();
+  }
+  addBtn.addEventListener("click", add);
+  input.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); add(); } });
+  draw();
+  wrap.append(h("div", {class:"add"}, input, addBtn), body);
+  return wrap;
+}
+function starsRow(getN, setN, max){
+  var box = h("div", {class:"stars", role:"group"});
+  function draw(){
+    box.textContent = "";
+    var n = getN();
+    for(var i = 1; i <= max; i++){
+      (function(i){
+        box.append(h("button", {class:"star" + (i <= n ? " on" : ""), type:"button",
+          "aria-label": i + "個", text:"★", onclick:function(){ setN(i); draw(); }}));
+      })(i);
+    }
+  }
+  draw();
+  return {el:box, redraw:draw};
+}
+
+/* ---------- steps ---------- */
+var STEPS = [
+  {
+    title:"あなたの名前は？", sub:"ニックネームでもOK。ローマ字は、名前を入力すると自動で入ります。",
+    build:function(next){
+      var n = h("input", {type:"text", placeholder:"例：久慈 環", "aria-label":"名前", autocomplete:"off"});
+      var y = h("input", {type:"text", placeholder:"自動で入ります（例：TAMAKI KUJI）", "aria-label":"ローマ字", autocomplete:"off"});
+      var hint = h("p", {class:"hint"});
+      n.value = S.name; y.value = S.yomi;
+      var composing = false;
+
+      function setHint(unknown){
+        hint.textContent = unknown
+          ? "漢字の読みが取れなかったので、ローマ字を入力してください。"
+          : "変換前のひらがなから作ります。名前にスペースを入れると、英語の並び（名 姓）に入れ替わります。手入力で直すこともできます。";
+      }
+      setHint(false);
+
+      function refresh(){
+        var r = romajiFromSegs();
+        setHint(r === null);
+        if(!S.yomiManual){
+          S.yomi = r === null ? "" : r;
+          y.value = S.yomi;
+        }
+      }
+      function capture(data){
+        var m = /^([ぁ-ゖー゛゜ァ-ヺヽヾ・]*)([A-Za-z]*)$/.exec(data || "");
+        if(!m) return;
+        var k = m[1] + ((m[2] === "n" || m[2] === "N") ? "ん" : "");
+        if(k) S.pendingKana = k;
+      }
+      function reconcile(){
+        var v = n.value;
+        S.name = v;
+        if(!v){ S.nameSeg = []; S.pendingKana = ""; S.yomiManual = false; refresh(); return; }
+        var segs = S.nameSeg, acc = "", keep = 0;
+        for(var i = 0; i < segs.length; i++){
+          if(v.slice(acc.length).indexOf(segs[i].t) === 0){ acc += segs[i].t; keep = i + 1; } else break;
+        }
+        segs.length = keep;
+        var rest = v.slice(acc.length);
+        if(rest){
+          var k = SAFE_TEXT.test(rest) ? rest : (S.pendingKana || null);
+          segs.push({t:rest, k:k});
+          S.pendingKana = "";
+        }
+        refresh();
+      }
+      n.addEventListener("compositionstart", function(){ composing = true; });
+      n.addEventListener("compositionupdate", function(e){ capture(e.data); });
+      n.addEventListener("compositionend", function(){
+        composing = false;
+        reconcile();
+        setTimeout(reconcile, 0);
+      });
+      n.addEventListener("input", function(e){
+        S.name = n.value;
+        if(composing || e.isComposing) return;
+        setTimeout(reconcile, 0);
+      });
+      y.addEventListener("input", function(){
+        S.yomi = y.value;
+        S.yomiManual = y.value.trim() !== "";
+        if(!S.yomiManual) refresh();
+      });
+      n.addEventListener("keydown", function(e){
+        if(e.key === "Enter" && !e.isComposing && e.keyCode !== 229){ e.preventDefault(); y.focus(); }
+      });
+      y.addEventListener("keydown", function(e){
+        if(e.key === "Enter" && !e.isComposing && e.keyCode !== 229){ e.preventDefault(); next(); }
+      });
+      return h("div", {}, h("label", {class:"f"}, "名前"), n, h("label", {class:"f"}, "ローマ字（自動入力・任意）"), y, hint);
+    }
+  },
+  {
+    title:"あなたを表すキーワードは？", sub:"3〜4個くらいがちょうどいいです。（最大4個）",
+    build:function(){ return chipGroup("attrs", 4); }
+  },
+  {
+    title:"得意なことは？", sub:"【A】からは1つ、【B】からは最大2つまで選べます。",
+    build:function(){
+      return h("div", {},
+        h("div", {class:"group-title lg"}, "【A】"), chipGroup("ability", 1),
+        h("div", {class:"group-title lg"}, "【B】"), chipGroup("move", 2));
+    }
+  },
+  {
+    title:"ふだんは見せない意外な一面は？", sub:"",
+    build:function(){ return chipGroup("hidden", 1); }
+  },
+  {
+    title:"好きなことは？", sub:"いくつでもどうぞ。（最大8個）",
+    build:function(){ return chipGroup("likes", 8); }
+  },
+  {
+    title:"能力値をつけよう", sub:"能力値は3つ必須です（限界突破枠を含む）。さらに2つまで自由に追加可能。項目名はすべて自由に書き換えできます。",
+    build:function(){
+      ensureStats();
+      var list = h("div", {class:"stats"});
+      S.statRows.forEach(function(row){
+        var nm = h("input", {type:"text", "aria-label":"項目名"});
+        nm.value = row.name;
+        nm.addEventListener("input", function(){ row.name = nm.value; row.edited = true; });
+        var r = starsRow(function(){ return row.n; }, function(n){ row.n = n; row.edited = true; }, 5);
+        list.append(h("div", {class:"stat"}, nm, r.el));
+      });
+
+      var extraBox = h("div", {class:"stats"});
+      var addBtn = h("button", {class:"btn ghost small", type:"button"});
+      function drawExtra(){
+        extraBox.textContent = "";
+        S.extraRows.forEach(function(row, i){
+          var nm = h("input", {type:"text", "aria-label":"追加した項目名", placeholder:"項目名を入力（例：料理力）"});
+          nm.value = row.name;
+          nm.addEventListener("input", function(){ row.name = nm.value; row.edited = true; });
+          var del = h("button", {class:"btn ghost small", type:"button", text:"削除", "aria-label":"この項目を削除",
+            onclick:function(){ S.extraRows.splice(i, 1); drawExtra(); }});
+          var r = starsRow(function(){ return row.n; }, function(n){ row.n = n; row.edited = true; }, 5);
+          extraBox.append(h("div", {class:"stat"}, h("div", {class:"r"}, nm, del), r.el));
+        });
+        var left = 2 - S.extraRows.length;
+        addBtn.textContent = left > 0 ? "＋ 項目を追加（あと" + left + "つ）" : "追加は2つまで";
+        addBtn.disabled = left <= 0;
+      }
+      addBtn.addEventListener("click", function(){
+        if(S.extraRows.length < 2){ S.extraRows.push({name:suggestStatName(), n:3, edited:false}); drawExtra(); }
+      });
+      drawExtra();
+
+      var ln = h("input", {type:"text", "aria-label":"最後の項目名"});
+      ln.value = S.last.name;
+      ln.addEventListener("input", function(){ S.last.name = ln.value; S.last.edited = true; });
+      var ta = h("textarea", {class:"wide", "aria-label":"最後の項目の数値", rows:"3",
+        placeholder:"例：★★★★★★★★★ ／ 測定不能 ／ ∞"});
+      ta.value = S.last.text;
+      var box = h("div", {class:"stars", role:"group"});
+      function drawLast(){
+        box.textContent = "";
+        var n = countStars(ta.value);
+        for(var i = 1; i <= 7; i++){
+          (function(i){
+            box.append(h("button", {class:"star" + (i <= n ? " on" : ""), type:"button", "aria-label": i + "個", text:"★",
+              onclick:function(){
+                ta.value = i >= 5 ? "★".repeat(i) : starStr(i);
+                S.last.text = ta.value; S.last.edited = true; drawLast();
+              }}));
+          })(i);
+        }
+      }
+      ta.addEventListener("input", function(){ S.last.text = ta.value; S.last.edited = true; drawLast(); });
+      drawLast();
+      var lastBox = h("div", {class:"lastbox"},
+        h("div", {class:"ttl"}, "最後の項目は「限界突破」枠"),
+        ln, box,
+        h("label", {class:"f", for:"lastv"}, "数値の表示（自由に入力できます）"),
+        ta,
+        h("p", {class:"hint"}, "★は7個までタップで入力できます。入力欄は自由に書き換えできます。星を増やす、「測定不能」「∞」などの言葉を入れる、改行して複数行にするのもOKです。"));
+      ta.id = "lastv";
+      return h("div", {}, list, extraBox, h("div", {class:"row"}, addBtn), lastBox,
+        h("p", {class:"hint"}, "前の質問の答えを変えても、手入力した項目はそのまま残ります。"));
+    }
+  },
+  {
+    title:"自分らしさを表すアイテムは？", sub:"",
+    validate:function(){ return S.equip.some(function(v){ return v.trim(); }); },
+    message:"アイテムを1つ入力してください",
+    build:function(next){
+      S.equip = S.equip.slice(0, 2);
+      if(!S.equip.length) S.equip = [""];
+      var box = h("div");
+      var addBtn = h("button", {class:"btn ghost small", type:"button", text:"＋ もう1つ追加"});
+      function draw(){
+        box.textContent = "";
+        S.equip.forEach(function(v, i){
+          var inp = h("input", {type:"text", autocomplete:"off", "aria-label":"アイテム" + (i + 1),
+            placeholder:"書く"});
+          inp.value = v;
+          inp.addEventListener("input", function(){ S.equip[i] = inp.value; });
+          inp.addEventListener("keydown", function(e){
+            if(e.key === "Enter" && !e.isComposing && e.keyCode !== 229){ e.preventDefault(); if(i === S.equip.length - 1) next(); }
+          });
+          var del = i > 0 ? h("button", {class:"btn ghost small", type:"button", text:"削除", "aria-label":"このアイテムを削除",
+            onclick:function(){ S.equip.splice(i, 1); draw(); }}) : null;
+          box.append(h("div", {class:"add"}, inp, del));
+        });
+        addBtn.style.display = S.equip.length >= 2 ? "none" : "";
+      }
+      addBtn.addEventListener("click", function(){ if(S.equip.length < 2){ S.equip.push(""); draw(); } });
+      draw();
+      return h("div", {}, box, addBtn, h("p", {class:"hint"}, "1つ必須・最大2つまで入力できます。"));
+    }
+  },
+  {
+    title:"疲れたとき、心や体を回復するアイテムは？", sub:"1つ必須・最大2つまで追加できます。",
+    build:function(){ return chipGroup("heal", 2); }
+  },
+  {
+    title:"あなたの心が動く場所は？", sub:"楽しい、ほっとする、気分転換、休憩スポット、思い出の場所など、何でもOK。1つ必須・最大2つまで追加できます。",
+    build:function(){ return chipGroup("save", 2); }
+  },
+  {
+    title:"あなたが大切にしている思いは？", sub:"",
+    build:function(){ return chipGroup("persona", 1); }
+  },
+  {
+    title:"どんな人生にしたい？", sub:"",
+    build:function(){ return chipGroup("goal", 1, null, false, true); }
+  },
+  {
+    title:"座右の銘、ゲームへの意気込み、決めゼリフなど何でも書いて！", sub:"",
+    validate:function(){ return S.closing.trim() !== ""; },
+    message:"決めゼリフを入力してください",
+    build:function(next){
+      var inp = h("input", {type:"text", "aria-label":"決めゼリフ", placeholder:"自由に書く"});
+      inp.value = S.closing;
+      inp.addEventListener("input", function(){ S.closing = inp.value; });
+      inp.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); next(); } });
+      var chips = h("div", {class:"chips"});
+      OPT.closing.forEach(function(c){
+        chips.append(h("button", {class:"chip", type:"button", text:c,
+          onclick:function(){ inp.value = c; S.closing = c; }}));
+      });
+      return h("div", {}, inp, h("div", {class:"group-title"}, "候補（タップで入力欄に入ります）"), chips);
+    }
+  },
+  {
+    title:"キャラのビジュアルは？", sub:"立ち絵のイメージ。",
+    build:function(){
+      return h("div", {},
+        h("div", {class:"group-title lg"}, "性別"), chipGroup("gender", 1, null, true),
+        h("div", {style:"height:14px"}),
+        h("div", {class:"group-title lg"}, "ビジュアル"),
+        sectionedChipGroup("look", LOOK_SECTIONS, 1));
+    }
+  },
+  {
+    title:"好きな世界観は？", sub:"舞台だけ選べば次に進めます。舞台・色・雰囲気はいくつでも、色のトーンは1つまで追加できます。",
+    build:function(){
+      return h("div", {},
+        h("div", {class:"group-title lg"}, "舞台"), chipGroup("stage", 99),
+        h("div", {class:"group-title lg"}, "色"), sectionedChipGroup("colortone", COLOR_TONE_SECTIONS, 99),
+        h("div", {class:"group-title lg"}, "雰囲気"), chipGroup("mood", 99));
+    }
+  }
+];
+
+/* すべての質問で、1つは選ぶか入力しないと先に進めない */
+var RULES = {
+  "あなたの名前は？":[function(){ return S.name.trim() !== ""; }, "名前を入力してください"],
+  "あなたを表すキーワードは？":[function(){ return S.attrs.length > 0; }, "1つ以上選ぶか、自分で書いてください"],
+  "得意なことは？":[function(){ return S.ability.length > 0 && S.move.length > 0; }, "特殊能力を1つ、必殺技を1〜2つ選ぶか自分で書いてください"],
+  "ふだんは見せない意外な一面は？":[function(){ return S.hidden.length > 0; }, "1つ選ぶか、自由に書いてください"],
+  "好きなことは？":[function(){ return S.likes.length > 0; }, "1つ以上選ぶか、自分で書いてください"],
+  "能力値をつけよう":[function(){
+    ensureStats();
+    return S.statRows.every(function(r){ return r.name.trim(); }) && S.last.name.trim() !== "" && S.last.text.trim() !== "";
+  }, "項目名と、最後の項目の数値を入力してください"],
+  "疲れたとき、心や体を回復するアイテムは？":[function(){ return S.heal.length > 0; }, "1〜2個選ぶか、自分で書いてください"],
+  "あなたの心が動く場所は？":[function(){ return S.save.length > 0; }, "1〜2個選ぶか、自分で書いてください"],
+  "あなたが大切にしている思いは？":[function(){ return S.persona.length > 0; }, "1つ選ぶか、自分で書いてください"],
+  "どんな人生にしたい？":[function(){ return S.goal.length > 0; }, "1つ選ぶか、自分で書いてください"],
+  "決めゼリフを入れよう":[function(){ return S.closing.trim() !== ""; }, "決めゼリフを入力してください"],
+  "好きな世界観は？":[function(){ return S.stage.length > 0; }, "舞台を1つ選んでください"],
+  "キャラのビジュアルは？":[function(){ return S.look.length > 0; }, "1つ選ぶか、自分で書いてください"]
+};
+STEPS.forEach(function(st){
+  var r = RULES[st.title];
+  if(r && !st.validate){ st.validate = r[0]; st.message = r[1]; }
+});
+
+var idx = 0;
+var main = document.getElementById("main");
+var progress = document.getElementById("progress");
+
+function drawProgress(){
+  progress.textContent = "";
+  for(var i = 0; i < STEPS.length; i++){
+    progress.append(h("i", {class:(i <= idx ? "on" : "") + (i === idx ? " now" : ""), text:"✦"}));
+  }
+  progress.append(h("span", {text:(idx + 1) + " / " + STEPS.length}));
+}
+function go(n){ idx = n; render(); window.scrollTo({top:0}); }
+function next(){
+  var st = STEPS[idx];
+  if(st.validate && !st.validate()){
+    var pending = Array.prototype.some.call(main.querySelectorAll("input.chipin"), function(el){ return el.value.trim() !== ""; });
+    toast(pending ? "入力欄の右にある「追加」を押してください" : (st.message || "入力してください"));
+    return;
+  }
+  if(idx < STEPS.length - 1) go(idx + 1); else showResult();
+}
+
+function render(){
+  var st = STEPS[idx];
+  drawProgress();
+  main.textContent = "";
+  var body = st.build(next);
+  function makeNav(){
+    return h("div", {class:"nav"},
+      idx > 0 ? h("button", {class:"btn ghost", type:"button", text:"戻る", onclick:function(){ go(idx - 1); }}) : null,
+      h("button", {class:"btn next", type:"button", text: idx === STEPS.length - 1 ? "結果を見る" : "次へ", onclick:next}));
+  }
+  main.append(h("section", {class:"card"},
+    h("h2", {text:st.title, class: st.sub ? "" : "nosub"}), st.sub ? h("p", {class:"sub", text:st.sub}) : null, body,
+    st.auto ? h("p", {class:"hint", text:"選ぶと自動で次に進みます。"}) : null,
+    makeNav()));
+}
+
+/* ---------- generation ---------- */
+function statLines(indent){
+  ensureStats();
+  var out = [];
+  S.statRows.forEach(function(r){ out.push(indent + (r.name.trim() || "項目") + "　" + starStr(r.n)); });
+  S.extraRows.forEach(function(r){ if(r.name.trim()) out.push(indent + r.name.trim() + "　" + starStr(r.n)); });
+  out.push(indent + (S.last.name.trim() || "限界突破") + "　" + S.last.text);
+  return out;
+}
+function itemLines(indent){
+  var out = [];
+  var eq = S.equip.map(function(v){ return v.trim(); }).filter(Boolean);
+  if(eq.length) out.push(indent + "【装備・強化】" + eq.join("、"));
+  if(S.heal.length) out.push(indent + "【回復アイテム】" + S.heal.join("、"));
+  if(S.save.length) out.push(indent + "【セーブポイント】" + S.save.join("、"));
+  return out;
+}
+function labelLine(label, value){
+  var W = 7; /* 「隠しステータス」の文字数に合わせて、項目名の長さを揃える */
+  return "・" + label + "　".repeat(Math.max(0, W - label.length)) + "｜" + value;
+}
+function buildGuide(){
+  var name = S.name.trim() || "名もなき主人公";
+  var attrs = S.attrs.length ? S.attrs : ["自由","探究"];
+  var ability = val(S.ability, OPT.ability[0]);
+  var moves = S.move.length ? S.move : [OPT.move[0]];
+  var hidden = val(S.hidden, OPT.hidden[0]);
+  var persona = val(S.persona, OPT.persona[0]);
+  var goal = val(S.goal, OPT.goal[0]);
+  var likes = S.likes.length ? S.likes : ["読書","散歩"];
+  var stage = val(S.stage, OPT.stage[0]);
+  var vibeAll = [].concat(S.colortone, S.mood);
+  var worldLabel = stage + (vibeAll.length ? "×" + vibeAll.join("×") : "");
+
+  var L = [];
+  L.push("🌌 " + name);
+  L.push("――キャラクター攻略ガイド");
+  L.push("");
+  L.push("分類：人間／" + worldLabel + "の住人");
+  L.push("属性：" + attrs.join("・"));
+  L.push("特殊能力：" + ability);
+  L.push("必殺技：" + moves.join("／"));
+  L.push("隠しステータス：" + hidden);
+  L.push("");
+  L.push("🎮 CHARACTER STATUS");
+  statLines("").forEach(function(s){ L.push(s); });
+  if(isOver(S.last.text)) L.push("※最後だけ上限突破。");
+  itemLines("").forEach(function(s){ L.push(s); });
+  L.push("");
+  L.push("🧠 性格");
+  L.push("「" + persona + "」");
+  L.push("それが、このキャラクターの行動原理。");
+  L.push("");
+  L.push("🔮 趣味・創作");
+  L.push(likes.join("、") + "が好き。");
+  L.push("好きなものに囲まれると、だいたい元気になる。");
+  L.push("");
+  L.push("⚔️ 必殺技の解説");
+  var texts = [], generic = false;
+  moves.forEach(function(m){ if(MOVE_TEXT[m]) texts.push(MOVE_TEXT[m]); else generic = true; });
+  if(generic) texts.push("発動すると、状況が一気に動き出す。\n本人にとっても意外な威力。");
+  L.push(texts.join("\n\n"));
+  L.push("");
+  var hd = HIDDEN_TEXT[hidden];
+  L.push("🔥 隠しスキル：" + (hd ? hd.t : "「本領発揮」"));
+  L.push(hd ? hd.b : "ふだんは表に出ないが、条件がそろうと発動する。\nそれもこのキャラクターの魅力のひとつ。");
+  L.push("");
+  L.push("🏆 QUEST CLEAR");
+  L.push("社会にうまく適応することではなく、");
+  L.push(goal + "を、自分のやり方で作る。");
+  L.push("");
+  L.push("💬 決めゼリフ");
+  L.push(S.closing.trim());
+  return L.join("\n");
+}
+
+function buildImagePrompt(compact){
+  var name = S.name.trim() || "名もなき主人公";
+  var yomi = S.yomi.trim();
+  var attrs = S.attrs.length ? S.attrs : ["自由","探究"];
+  var stage = val(S.stage, OPT.stage[0]);
+  var vibeText = [].concat(S.colortone, S.mood).join("・");
+  var worldLabel = stage + (vibeText ? "×" + vibeText : "");
+  var style = stage + "を舞台に" + (vibeText ? "、" + vibeText + "を感じる配色・雰囲気でまとめる。" : "、世界観に合う配色でまとめる。");
+  var gender = val(S.gender, "");
+  var look = (gender ? gender + "・" : "") + val(S.look, "現代のカジュアル服");
+  var goal = val(S.goal, OPT.goal[0]);
+  var persona = val(S.persona, OPT.persona[0]);
+  var moves = S.move.length ? S.move : [OPT.move[0]];
+  var hidden = val(S.hidden, OPT.hidden[0]);
+  var ability = val(S.ability, OPT.ability[0]);
+  var likes = S.likes.length ? S.likes : ["読書","散歩"];
+  var closing = S.closing.trim();
+
+  var t = [];
+  t.push("ゲームのキャラクター紹介カード風の、縦長（3:4）の高品質なイラストを作成してください。繊細なアニメ調で、設定資料集のような仕上がりにします。");
+  t.push("");
+  t.push("【世界観・配色】" + worldLabel + "。" + style);
+  t.push("【キャラクター】" + look + "の人物（" + name + "をイメージ）。左上に大きく立ち絵を配置。世界観に合う小物を持たせる。");
+  t.push("【レイアウト】最上部の細い帯にタイトル。その下：左に立ち絵、右に名前と基本情報。" + (yomi ? "名前の真下に、ローマ字を名前より小さい文字で添える。" : "") + "基本情報の項目名（属性・特殊能力・必殺技・隠しステータス）は、すべて同じ長さ・同じ幅のラベル装飾（細い枠や帯）に入れて縦にきれいに揃え、内容は「｜」の右側に並べる。項目名ごとに装飾の長さを変えない。"
+    + "中段左：「CHARACTER STATUS」の枠（能力値と、【装備・強化】【回復アイテム】【セーブポイント】の項目。これらの項目名も同じ長さのラベルに揃える）。"
+    + (compact ? "下段：「QUEST CLEAR」のカード。" : "中段右：性格・趣味のカード。下段：「QUEST CLEAR」のカード。")
+    + (closing ? "最下部の中央に、文字リストの最後にある一行の言葉を大きめに入れる。" : "")
+    + "すべて角丸の枠、細い金属調のライン、星や結晶の装飾でまとめる。");
+  t.push("");
+  t.push("【入れる文字】以下の日本語だけを、一字一句この通りに、読みやすい大きさで入れてください。これ以外の文字は入れないでください。同じ文字・同じ項目を二重に入れず、各項目は1回ずつだけ入れます。位置や大きさの指示はレイアウトに書いてあります。「タイトル：」「名前：」「ローマ字：」の項目名は指示用なので入れず、「：」の後ろの文字だけを入れてください。");
+  t.push("・タイトル：キャラクター攻略ガイド");
+  t.push("・名前：" + name);
+  if(yomi) t.push("・ローマ字：" + yomi);
+  t.push("・基本情報：");
+  t.push(labelLine("属性", attrs.join("・")));
+  t.push(labelLine("特殊能力", ability));
+  t.push(labelLine("必殺技", moves.join("／")));
+  t.push(labelLine("隠しステータス", hidden));
+  t.push("・CHARACTER STATUS：");
+  statLines("　").forEach(function(s){ t.push(s); });
+  itemLines("　").forEach(function(s){ t.push(s); });
+  if(!compact){
+    t.push("・性格：「" + persona + "」");
+    t.push("・趣味：" + likes.join("、"));
+  }
+  t.push("・QUEST CLEAR：" + goal);
+  if(closing) t.push("・" + closing);
+  return t.join("\n");
+}
+
+/* ---------- result ---------- */
+var tab = 0, compact = false;
+function showResult(){
+  progress.textContent = "";
+  progress.append(h("i", {class:"on", text:"✦"}), h("span", {text:"完成！"}));
+  main.textContent = "";
+
+  var tOrig = h("textarea", {class:"doc", readonly:"readonly", "aria-label":"画像生成用原文"});
+  var tEdit = h("textarea", {class:"doc", "aria-label":"編集スペース"});
+  function makePrompt(){
+    var text = buildImagePrompt(compact);
+    tOrig.value = text;
+    tEdit.value = text;
+  }
+  makePrompt();
+
+  function copyBtn(ta, label){
+    return h("button", {class:"btn", type:"button", text:label, onclick:function(){
+      if(!ta.value.trim()){ toast("コピーする内容がありません"); return; }
+      copyText(ta.value);
+    }});
+  }
+  var segEl = h("div", {class:"seg"}, "文字量：",
+    h("button", {class:"chip", type:"button", "aria-pressed":"false", text:"少なめ（崩れにくい）"}),
+    h("button", {class:"chip", type:"button", "aria-pressed":"true", text:"ふつう"}));
+  var segBtns = segEl.querySelectorAll("button");
+  function setCompact(c){
+    compact = c;
+    segBtns[0].setAttribute("aria-pressed", c ? "true" : "false");
+    segBtns[1].setAttribute("aria-pressed", c ? "false" : "true");
+    if(tEdit.value === tOrig.value){ makePrompt(); }
+    else {
+      var text = buildImagePrompt(compact);
+      tOrig.value = text;
+    }
+  }
+  segBtns[0].addEventListener("click", function(){ setCompact(true); });
+  segBtns[1].addEventListener("click", function(){ setCompact(false); });
+
+  var tip = h("div", {class:"tip"}, "ChatGPTに貼って使います。文字が崩れる場合は文字量を「少なめ」にするか、背景とキャラだけ作って文字はCanvaなどで載せると確実です。");
+
+  var views = [
+    h("div", {}, tip, segEl, tOrig,
+      h("div", {class:"row"}, copyBtn(tOrig, "画像生成用をコピー"))),
+    h("div", {}, tEdit,
+      h("div", {class:"row"}, copyBtn(tEdit, "文章をコピー"),
+        h("button", {class:"btn ghost", type:"button", text:"原文に戻す", onclick:function(){
+          if(tEdit.value !== tOrig.value && !confirm("編集した内容が消えて、原文に戻ります。よろしいですか？")) return;
+          tEdit.value = tOrig.value; toast("原文に戻しました");
+        }})))
+  ];
+  var names = ["画像生成用原文","編集スペース"];
+  var tabsEl = h("div", {class:"tabs", role:"tablist"});
+  var panels = h("div");
+  function drawTabs(){
+    tabsEl.textContent = "";
+    names.forEach(function(n, i){
+      tabsEl.append(h("button", {class:"tab", type:"button", role:"tab",
+        "aria-selected": i === tab ? "true" : "false", text:n,
+        onclick:function(){ tab = i; drawTabs(); }}));
+    });
+    panels.textContent = "";
+    panels.append(views[tab]);
+  }
+  drawTabs();
+
+  main.append(h("section", {class:"card"},
+    h("h2", {text:(S.name.trim() || "名もなき主人公") + " のキャラクター紹介"}),
+    h("p", {class:"sub", text:"そのままコピペしても、編集スペースで自由に書きかえてコピペしてもOKです。"}),
+    tabsEl, panels,
+    h("div", {class:"nav"},
+      h("button", {class:"btn ghost", type:"button", text:"回答を直す", onclick:function(){ go(0); }}),
+      h("button", {class:"btn ghost next", type:"button", text:"最初からやり直す", onclick:function(){ S = freshState(); tab = 0; compact = false; go(0); }}))));
+  window.scrollTo({top:0});
+}
+
+render();
+})();
+</script>
+</body>
+</html>
